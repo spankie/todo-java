@@ -5,19 +5,18 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
+import javax.validation.ConstraintViolationException;
 
 import com.david.todo.models.Task;
 import com.david.todo.repositories.TaskRepository;
 import com.david.todo.validation.StatusType;
 import com.david.todo.validation.ValueOfEnum;
 
-import org.hibernate.validator.constraints.CompositionType;
-import org.hibernate.validator.constraints.ConstraintComposition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 
 /**
  * TaskController
@@ -72,9 +70,11 @@ public class TaskController {
 
   @GetMapping
   @RequestMapping("status/{status}")
-  public MyResponse<List<Task>> getTasksByStatus(@PathVariable("status")  @ValueOfEnum(enumClass = StatusType.class) String status) {
+  public MyResponse<List<Task>> getTasksByStatus(
+      @PathVariable("status") @ValueOfEnum(enumClass = StatusType.class, message = "status must be one of pending, done, or inprogress") String status) {
     List<Task> tasks = taskRepository.findByStatus(status);
-    MyResponse<List<Task>> res = new MyResponse<List<Task>>(tasks, HttpStatus.OK, "pending tasks retrieved successfully");
+    MyResponse<List<Task>> res = new MyResponse<List<Task>>(tasks, HttpStatus.OK,
+        status + " tasks retrieved successfully");
     return res;
   }
 }
