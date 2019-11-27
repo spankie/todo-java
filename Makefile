@@ -9,3 +9,6 @@ prod:
 
 prod-migrate:
 	mvn spring-boot:run -Dspring.profiles.active=prod flyway:migrate
+
+test:
+	mvn test flyway:migrate
