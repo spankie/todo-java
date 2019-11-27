@@ -80,9 +80,36 @@ class TodoApplicationTests {
 
 	@Test
 	public void getPendingTodoTest() throws Exception {
-		this.mockMvc.perform(get("/tasks/status/pending"))
+		String status = "pending";
+		this.mockMvc.perform(get("/tasks/status/"+status))
 				.andDo(print()).andDo(print()).andExpect(status().isOk())
-			.andExpect(content().string(containsString("pending tasks retrieved successfully")));
+			.andExpect(content().string(containsString(status + " tasks retrieved successfully")));
 	}
+
+	@Test
+	public void getDoneTodoTest() throws Exception {
+		String status = "done";
+		this.mockMvc.perform(get("/tasks/status/"+status))
+				.andDo(print()).andDo(print()).andExpect(status().isOk())
+			.andExpect(content().string(containsString(status + " tasks retrieved successfully")));
+	}
+
+	@Test
+	public void getInProgressTodoTest() throws Exception {
+		String status = "inprogress";
+		this.mockMvc.perform(get("/tasks/status/"+status))
+				.andDo(print()).andDo(print()).andExpect(status().isOk())
+			.andExpect(content().string(containsString(status + " tasks retrieved successfully")));
+	}
+
+	@Test
+	public void getInvalidStatusTodoTest() throws Exception {
+		String status = "invalid";
+		this.mockMvc.perform(get("/tasks/status/"+status))
+				.andDo(print()).andDo(print()).andExpect(status().isBadRequest())
+			.andExpect(content().string(containsString("status must be one of pending, done, or inprogress")));
+	}
+
+
 
 }
