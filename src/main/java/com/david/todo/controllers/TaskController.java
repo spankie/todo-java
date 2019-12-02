@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -76,6 +77,22 @@ public class TaskController {
     List<Task> tasks = taskRepository.findByStatus(status);
     MyResponse<List<Task>> res = new MyResponse<List<Task>>(tasks, HttpStatus.OK, "pending tasks retrieved successfully");
     return res;
+  }
+
+  // @GetMapping
+  @RequestMapping(value = "{id}", method = RequestMethod.PUT)
+  public MyResponse<Task> UpdateTask(@PathVariable("id") Integer id, @Valid @RequestBody final Task t, HttpServletResponse response) {
+    Optional<Task> op = taskRepository.findById(id);
+    if (op.isPresent()) {
+      Task task = op.get();
+      task.setStatus(t.getStatus());
+      task.setTitle(t.getTitle());
+      task.setDescription(t.getDescription());
+      MyResponse<Task> res = new MyResponse<Task>(task, HttpStatus.OK, "tasks updated successfully");
+      return res;
+    }
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    return new MyResponse<>(null, HttpStatus.BAD_REQUEST, "unable to find the task");
   }
 }
 
