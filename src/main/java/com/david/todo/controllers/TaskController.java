@@ -98,6 +98,22 @@ public class TaskController {
         status + " tasks retrieved successfully");
     return res;
   }
+
+  // @GetMapping
+  @RequestMapping(value = "{id}", method = RequestMethod.PUT)
+  public MyResponse<Task> UpdateTask(@PathVariable("id") Integer id, @Valid @RequestBody final Task t, HttpServletResponse response) {
+    Optional<Task> op = taskRepository.findById(id);
+    if (op.isPresent()) {
+      Task task = op.get();
+      task.setStatus(t.getStatus());
+      task.setTitle(t.getTitle());
+      task.setDescription(t.getDescription());
+      MyResponse<Task> res = new MyResponse<Task>(task, HttpStatus.OK, "tasks updated successfully");
+      return res;
+    }
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    return new MyResponse<>(null, HttpStatus.BAD_REQUEST, "unable to find the task");
+  }
 }
 
 // use anotations for the version
