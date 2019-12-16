@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 /**
@@ -28,6 +29,7 @@ public class Task {
   @Length(max = 150)
   private String title;
   private String description;
+  @CreationTimestamp
   @Column(name = "created_at")
   private Time createAt;
   @Column(name = "updated_at")
@@ -35,7 +37,8 @@ public class Task {
   @Column(name = "completed_at")
   private Time completedAt;
 
-  public Task() {}
+  public Task() {
+  }
 
   public Task(String title, String description, String status) {
     this.status = status;
