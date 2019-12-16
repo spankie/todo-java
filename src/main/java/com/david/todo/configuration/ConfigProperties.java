@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "api")
 public class ConfigProperties {
-     
+
   private String url;
   private int port;
   private String from;

@@ -9,6 +9,7 @@ import javax.validation.ConstraintViolationException;
 
 import com.david.todo.models.Task;
 import com.david.todo.repositories.TaskRepository;
+import com.david.todo.services.TaskService;
 import com.david.todo.validation.StatusType;
 import com.david.todo.validation.ValueOfEnum;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,19 +38,28 @@ public class TaskController {
   @Autowired
   private TaskRepository taskRepository;
 
+  private TaskService taskService;
+
+  @Autowired
+  public TaskController(TaskService taskService) {
+    this.taskService = taskService;
+  }
+
   @PostMapping
   // @RequestMapping("/new") // /api/v1/tasks/new
   @ResponseStatus(code = HttpStatus.CREATED)
   public ResponseEntity<MyResponse<Task>> createTask(@Valid @RequestBody final Task task) {
     // return new Task();
-    Task t = taskRepository.save(task);
+    // Task t = taskRepository.save(task);
+    Task t = taskService.create(task);
     MyResponse<Task> tt = new MyResponse<Task>(t, HttpStatus.CREATED, "created task successfullt");
     return new ResponseEntity<MyResponse<Task>>(tt, HttpStatus.CREATED);
   }
 
   @GetMapping
   public MyResponse<List<Task>> getTasks() {
-    List<Task> tasks = taskRepository.findAll();
+    // List<Task> tasks = taskRepository.findAll();
+    List<Task> tasks = taskService.getAll();
     MyResponse<List<Task>> res = new MyResponse<List<Task>>(tasks, HttpStatus.OK, "all tasks retrieved successfully");
     return res;
   }
@@ -56,23 +67,33 @@ public class TaskController {
   @GetMapping
   @RequestMapping("{id}")
   public MyResponse<Task> getOneTasks(@PathVariable Integer id, HttpServletResponse response) {
-    Optional<Task> op = taskRepository.findById(id);
-    Task task;
-    if (op.isPresent()) {
-      task = op.get();
-      MyResponse<Task> res = new MyResponse<Task>(task, HttpStatus.OK, "tasks retrieved successfully");
-      return res;
-    } else {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      return new MyResponse<>(null, HttpStatus.BAD_REQUEST, "unable to find the task");
+    // Optional<Task> op = taskRepository.findById(id);
+    // Task task;
+    // if (op.isPresent()) {
+    // task = op.get();
+    // MyResponse<Task> res = new MyResponse<Task>(task, HttpStatus.OK, "tasks
+    // retrieved successfully");
+    // return res;
+    // } else {
+    // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    // return new MyResponse<>(null, HttpStatus.BAD_REQUEST, "unable to find the
+    // task");
+    // }
+
+    Task task = taskService.getOne(id);
+    if (task != null) {
+      return new MyResponse<Task>(task, HttpStatus.OK, "tasks retrieved successfully");
     }
+    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    return new MyResponse<>(null, HttpStatus.BAD_REQUEST, "unable to find the task");
   }
 
   @GetMapping
-  @RequestMapping("status/{status}")
+  @RequestMapping(value = "status/{status}")
   public MyResponse<List<Task>> getTasksByStatus(
       @PathVariable("status") @ValueOfEnum(enumClass = StatusType.class, message = "status must be one of pending, done, or inprogress") String status) {
-    List<Task> tasks = taskRepository.findByStatus(status);
+    // List<Task> tasks = taskRepository.findByStatus(status);
+    List<Task> tasks = taskService.getByStatus(status);
     MyResponse<List<Task>> res = new MyResponse<List<Task>>(tasks, HttpStatus.OK,
         status + " tasks retrieved successfully");
     return res;
